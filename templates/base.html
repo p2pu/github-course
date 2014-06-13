@@ -1,0 +1,39 @@
+<!doctype html>
+<!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
+<!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
+<!--[if IE 8 ]>    <html lang="en" class="no-js ie8"> <![endif]-->
+<!--[if IE 9 ]>    <html lang="en" class="no-js ie9"> <![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+  <script type="text/javascript">var _sf_startpt=(new Date()).getTime()</script>
+  <meta charset="utf-8">
+  <!--[if IE]><meta content='IE=8' http-equiv='X-UA-Compatible'/><![endif]-->
+
+  <title>{{site.data.course.title}} | {{ page.title }}</title>
+  <meta name="description" content="Learning for everyone, by everyone, about almost anything.">
+  <meta name="author" content="p2pu">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" href="https://p2pu.org/static/images/favicon.ico">
+  <link rel="apple-touch-icon" href="https://p2pu.org/static/images/apple-touch-icon.png">
+</head>
+<body>
+
+  <div class="navbar">
+    <div class="navbar-inner">
+      <div class="container">
+        <a class="brand" href="{{site.baseurl}}/">Github Course App</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="container body">
+    {% block body %}{% endblock %}
+  </div>
+
+  <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
+  {% block js %}{% endblock %}
+
+  <!-- Google Analytics -->
+</body>
+</html>

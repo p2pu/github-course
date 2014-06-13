@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block body %}
+<a href="{% url 'gh_auth_redirect' %}">Create a course</a>
+{% endblock %}
+
+{% block js %}
+  <script src="{% static 'js/github.js' %}"></script>
+{% endblock %}

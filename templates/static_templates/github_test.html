@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load staticfiles %}
+
+{% block body %}
+<p id="id-username-span"></p>
+<p>
+    <div id="id-course-view">
+      <div id="id-course-header"></div>
+      <input id="id-input-repo" type="text" name="repo" placeholder="repository name"></input>
+        <a id="id-button-load" class="load" href="#">Load course</a>
+        <a id="id-button-create" class="create" href="#">Create course</a>
+
+
+      <ul id="id-page-list">
+      </ul>
+      <input id="id-input-page" placeholder="Page title"></input>
+    </div>
+</p>
+{% endblock %}
+
+{% block js %}
+  <script src="{% static 'js/github.js' %}"></script>
+  <script src="{% static 'js/underscore.js' %}"></script>
+  <script src="{% static 'js/backbone.js' %}"></script>
+  <script src="{% static 'js/backbone.localStorage.js' %}"></script>
+  <script src="{% static 'js/courseapp.js' %}"></script>
+  <script>
+    function qs(key) {
+      key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
+      var match = location.search.match(new RegExp("[?&]"+key+"=([^&]+)(&|$)"));
+      return match && decodeURIComponent(match[1].replace(/\+/g, " "));
+    }
+
+    var me = null;
+    var github = null;
+
+    $(document).ready(function(){
+      var token = qs('token');
+      github = new Github({
+        token: token,
+        auth: "oauth"
+      });
+      github.getUser().me(function(err, res){
+        me=res;
+        $("#id-username-span").html('Authenticated with Github as <a href="' + me.html_url+ '">' + me.login + '</a>');
+        var courseView = new window.CourseView({
+            model: new window.Course({
+                github_user: me.login,
+                github_token: qs('token')
+            })
+        });
+        $('#id-button-create').show();
+        $('#id-button-load').show();
+      });
+    });
+
+  </script>
+
+  <script type="text/template" id="id-page-template">
+    <li class="page-inline">
+      <label><%- path %></label>
+      <a href="#" class="delete">Delete</a>
+    </li>
+  </script>
+
+  <script type="text/template" id="id-course-header-template">
+      <h2><%- github_repo %></h2>
+  </script>
+
+{% endblock %}
