@@ -2,13 +2,11 @@ $(function(){
 
     var Page = Backbone.Model.extend({
         sync: function(method, model, options){
+            var token = model.get('github_token');
+            var user = model.get('github_user');
+            var repo = model.get('github_repo');
             if (method == 'read') {
-                var github = new Github({
-                    token: model.get('github_token'),
-                    auth: 'oauth'
-                });
-                var repo = github.getRepo(model.get('github_user'), model.get('github_repo'));
-                repo.contents('gh-pages', model.get('path'), function(err, res){
+                get_course_page(token, user, repo, model.get('path'), function(err, res){
                     model.set({content: res});
                     options.success(model);
                 });
@@ -16,12 +14,7 @@ $(function(){
             else if (method == 'update') {
             }
             else if (method == 'create') {
-                var github = new Github({
-                    token: model.get('github_token'),
-                    auth: 'oauth'
-                });
-                var repo = github.getRepo(model.get('github_user'), model.get('github_repo'))
-                repo.postContents('gh-pages', model.get('path'), model.get('content'), 'Create new post ' + model.get('path'), function(err, res){
+                create_course_page(token, user, repo, model.get('path'), model.get('content'), function(err, res){
                     options.success(model);
                 });
             }
@@ -31,32 +24,15 @@ $(function(){
     });
 
     var PageCollection = Backbone.Collection.extend({
-        model: Page/*,
-        sync: function(method, model, options){
-            if (method == 'read') {
-                var github = new Github({
-                    token: model.get('github_token'),
-                    auth: 'oauth'
-                });
-                var repo = github.getRepo(model.get('github_user'), model.get('github_repo'));
-                repo.contents('gh-pages', '_posts', function(err, res){
-                    var results = [];
-                    var data = JSON.parse(res);
-                    for (var i = 0; i < data.length; ++i){
-                        page = new Page({path: data[i].path, github_user: model.get('github_user'), github_repo: model.get('github_repo')});
-                        page.fetch();
-                        results.push(page);
-                    }
-                    options.success(results);
-                });
-            }
-        }*/
+        model: Page
     });
 
-    var Pages = new PageCollection;
-
     var Course = Backbone.Model.extend({
+        initialize: function() {
+            this.pages = new PageCollection;
+        },
         sync: function(method, model, options){
+            var that = this;
             if (method == 'read') {
                 var github = new Github({
                     token: model.get('github_token'),
@@ -68,7 +44,7 @@ $(function(){
                     for (var i = 0; i < data.length; ++i){
                         page = new Page({path: data[i].path, github_user: model.get('github_user'), github_repo: model.get('github_repo')});
                         page.fetch();
-                        Pages.add(page);
+                        that.pages.add(page);
                     }
                 });
 
@@ -77,31 +53,14 @@ $(function(){
                 });
 
             } else if (method == 'create') {
-                var github = new Github({
-                    token: model.get('github_token'),
-                    auth: 'oauth'
-                });
-                // Create repository
-                var repo = github.getRepo();
-                var repoOptions = {
-                    name: model.get('github_repo'),
-                    homepage: model.get('github_user') + '.github.io/' + model.get('github_repo')
-                }
-                repo.createRepo(repoOptions, function(err, res){
-                    // Bootstrap course
-                    // files _config.yml README.markdown _posts/2000-01-01-start-here.markdown
-
-                    var repo = github.getRepo(model.get('github_user'), model.get('github_repo'));
-                    var config = "base_url: /" + model.get('github_repo');
-                    var message = 'Add config file for jekyll course template';
-                    repo.postContents('gh-pages', '_config.yml', config, message, function(err, res){
-                        repo.postContents('gh-pages', 'index.markdown', '---\n---\n# Your first course', 'Add front page to course', function(err, res){
-                            repo.postContents('gh-pages', '_posts/2000-01-01-start-here.markdown', '---\ntitle: Start here\n---\n', 'Add post to course', function(err, res){
-                                options.success(model);
-                            });
-                        });
-                    });
-                });
+                create_course(
+                    model.get('github_token'),
+                    model.get('github_user'),
+                    model.get('github_repo'),
+                    function(err, res){
+                        options.success(model);
+                    }
+                );
             }
         }
     });
@@ -136,9 +95,9 @@ $(function(){
         initialize: function() {
             this.repoNameInput = this.$("#id-input-repo");
             this.input = this.$("#id-input-page");
-            this.listenTo(Pages, 'add', this.addPage);
-            this.listenTo(Pages, 'reset', this.addAll);
             this.listenTo(this.model, 'all', this.render);
+            this.listenTo(this.model.pages, 'add', this.addPage);
+            this.listenTo(this.model.pages, 'reset', this.addAll);
         },
         render: function() {
             this.$("#id-course-header").html(this.template(this.model.toJSON()));
@@ -149,14 +108,14 @@ $(function(){
             this.$("#id-page-list").append(view.render().el);
         },
         addAll: function() {
-            Pages.each(this.addPage, this);
+            this.model.pages.each(this.addPage, this);
         },
         createOnEnter: function(e) {
             if (e.keyCode != 13) return;
             if (!this.input.val()) return;
-            var path = "_posts/2000-01-" + (1+Pages.length) + "-" + this.input.val().toLowerCase().replace(/ /g, "-") + ".md";
-            var content = "---\ntitle: \"" + this.input.val() + "\"\n---\n";
-            Pages.create({
+            var path = "_posts/2000-01-" + (1+this.model.pages.length) + "-" + this.input.val().toLowerCase().replace(/ /g, "-") + ".md";
+            var content = "---\ntitle: \"" + this.input.val() + "\"\ncategories: [content]\n---\n";
+            this.model.pages.create({
                 path: path, 
                 content: content, 
                 github_user: this.model.get('github_user'), 
