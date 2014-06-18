@@ -141,8 +141,10 @@ $(function(){
         createCourse: function() {
             if (!this.repoNameInput.val()) return;
             this.$('#id-course-load-form').hide();
+            this.$('#id-course-loading').show();
             this.model.set('github_repo', this.repoNameInput.val());
             this.model.once('sync', function(){ 
+                this.$('#id-course-loading').hide();
                 this.model.fetch();
                 this.$('#id-page-create-form').show();
             }, this);
