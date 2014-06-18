@@ -1,4 +1,5 @@
 Django==1.6.5
 argparse==1.2.1
+gunicorn==19.0.0
 requests==2.3.0
 wsgiref==0.1.2
