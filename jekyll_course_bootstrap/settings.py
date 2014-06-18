@@ -17,12 +17,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 # See https://docs.djangoproject.com/en/1.6/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '$c8yv(y3e8+(#grls1%xzfql0+upo#%#a%6=##)hnx2o#%0m=x'
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-TEMPLATE_DEBUG = True
+TEMPLATE_DEBUG = DEBUG
 
 ALLOWED_HOSTS = []
 
@@ -56,7 +56,6 @@ WSGI_APPLICATION = 'jekyll_course_bootstrap.wsgi.application'
 TEMPLATE_DIRS = (
     os.path.join(BASE_DIR, 'templates')
 )
-
 
 # Database
 # https://docs.djangoproject.com/en/1.6/ref/settings/#databases
