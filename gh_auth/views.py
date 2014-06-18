@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django import http
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -36,5 +36,6 @@ def callback(request):
         'redirect_uri': "http://{0}{1}".format(settings.DOMAIN, reverse('gh_auth_callback')),
     }
     response = requests.post(url, data=params)
-    access_token = parse_qs(response.text).get('access_token')
-    return http.HttpResponse(access_token)
+    access_token = parse_qs(response.text).get('access_token')[0]
+    redirect_url = '{0}?token={1}'.format(reverse('static_templates', args=('github_test.html',)), access_token)
+    return http.HttpResponseRedirect(redirect_url)
