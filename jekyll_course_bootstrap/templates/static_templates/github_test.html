@@ -6,14 +6,21 @@
 <p>
     <div id="id-course-view">
       <div id="id-course-header"></div>
-      <input id="id-input-repo" type="text" name="repo" placeholder="repository name"></input>
-        <a id="id-button-load" class="load" href="#">Load course</a>
-        <a id="id-button-create" class="create" href="#">Create course</a>
+      <div id="id-course-load-form">
+        <div class="form-group">
+          <input id="id-input-repo" type="text" name="repo" placeholder="Repository name"></input>
+        </div>
+        <a id="id-button-load" class="load btn btn-primary" href="#">Load course</a>
+        <a id="id-button-create" class="create btn btn-primary" href="#">Create course</a>
+      </div>
 
-
-      <ul id="id-page-list">
+      <ul id="id-page-list" class="list-group unstyled">
       </ul>
-      <input id="id-input-page" placeholder="Page title"></input>
+    
+      <div id="id-page-create-form" class="form-group" style="display:none;">
+        <input id="id-input-page" type="text" placeholder="Page title"></input>
+        <a id="id-page-create-button" class="btn btn-primary" href="#">Create page</a>
+      </div>
     </div>
 </p>
 {% endblock %}
@@ -25,6 +32,7 @@
   <script src="{% static 'js/backbone.localStorage.js' %}"></script>
   <script src="{% static 'js/githubcourse.js' %}"></script>
   <script src="{% static 'js/courseapp.js' %}"></script>
+  <script src="{% static 'js/js-yaml.min.js' %}"></script>
   <script>
     function qs(key) {
       key = key.replace(/[*+?^$.\[\]{}()|\\\/]/g, "\\$&"); // escape RegEx meta chars
@@ -58,14 +66,17 @@
   </script>
 
   <script type="text/template" id="id-page-template">
-    <li class="page-inline">
-      <label><%- path %></label>
+    <li class="list-group-item">
+      <label><%- title %></label>
+      <a href="https://github.com/<%- github_user %>/<%- github_repo %>/tree/gh-pages/<%- path %>" target="_blank">View</a>
       <a href="#" class="delete">Delete</a>
     </li>
   </script>
 
   <script type="text/template" id="id-course-header-template">
       <h2><%- github_repo %></h2>
+      <p><a href="http://<%- github_user %>.github.io/<%- github_repo %>/" target="_blank">View course</a></p>
+      <p><a href="http://github.com/<%- github_user %>/<%- github_repo %>/" target="_blank">View on Github</a></p>
   </script>
 
 {% endblock %}

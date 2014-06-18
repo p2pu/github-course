@@ -2,7 +2,7 @@
 {% load staticfiles %}
 
 {% block body %}
-<a href="{% url 'gh_auth_redirect' %}">Create a course</a>
+<a class="btn btn-primary" href="{% url 'gh_auth_redirect' %}"><i class="fa fa-github"></i> Authenticate with Github</a>
 {% endblock %}
 
 {% block js %}

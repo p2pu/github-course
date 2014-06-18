@@ -1,3 +1,4 @@
+{% load static %}
 <!doctype html>
 <!--[if lt IE 7 ]> <html lang="en" class="no-js ie6"> <![endif]-->
 <!--[if IE 7 ]>    <html lang="en" class="no-js ie7"> <![endif]-->
@@ -9,27 +10,70 @@
   <meta charset="utf-8">
   <!--[if IE]><meta content='IE=8' http-equiv='X-UA-Compatible'/><![endif]-->
 
-  <title>{{site.data.course.title}} | {{ page.title }}</title>
-  <meta name="description" content="Learning for everyone, by everyone, about almost anything.">
+  <title>P2PU Github course generator</title>
   <meta name="author" content="p2pu">
-
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="shortcut icon" href="https://p2pu.org/static/images/favicon.ico">
-  <link rel="apple-touch-icon" href="https://p2pu.org/static/images/apple-touch-icon.png">
+	<link rel="shortcut icon" href="https://p2pu.org/static/images/favicon.ico">
+	<link rel="apple-touch-icon" href="https://p2pu.org/static/images/apple-touch-icon.png">
+
+	<link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css"
+	      rel="stylesheet">
+	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css">
+  <link href="https://netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
+	<link rel="stylesheet" href="{% static "css/style.css" %}" />
+
+
+	<!--[if lte IE 8]><link rel="stylesheet" href="{% static "css/ie/v8.css" %}" /><![endif]-->
+	<!--[if lte IE 9]><link rel="stylesheet" href="{% static "css/ie/v9.css" %}" /><![endif]-->
+	<script type="text/javascript" src="{% static "js/modernizr-2.6.2.min.js" %}"></script>
+
 </head>
 <body>
 
-  <div class="navbar">
-    <div class="navbar-inner">
-      <div class="container">
-        <a class="brand" href="{{site.baseurl}}/">Github Course App</a>
-      </div>
-    </div>
-  </div>
+<!-- Navigation -->
+<nav class="navbar affix"
+     role="navigation"
+     data-spy="affix"
+     data-offset-top="700"
+		>
+	<div class="container-fluid">
+		<!-- Brand and toggle get grouped for better mobile display -->
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse"
+			        data-target="#p2pu-menu">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="/">
+				<img src="{% static "img/logo.png" %}" alt="P2PU Logo" />
+			</a>
+		</div>
 
-  <div class="container body">
-    {% block body %}{% endblock %}
-  </div>
+		<!-- Collect the nav links, forms, and other content for toggling -->
+		<div class="collapse navbar-collapse" id="p2pu-menu">
+			<ul class="nav navbar-nav navbar-right">
+				<li>
+					<a href="http://thepeople.p2pu.org" class="btn btn-primary">Sign Up</a>
+				</li>
+			</ul>
+		</div>
+		<!-- /.navbar-collapse -->
+	</div>
+	<!-- /.container-fluid -->
+</nav>
+<!-- End Navigation -->
+<article id="main">
+	<div class="wrapper style4 container">
+		<div class="row">
+			<div class="col-md-8 skel-cell-important">
+  {% block body %}{% endblock %}
+			</div>
+		</div>
+	</div>
+</article>
+
 
   <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
   {% block js %}{% endblock %}
