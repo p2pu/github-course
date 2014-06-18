@@ -114,7 +114,12 @@ $(function(){
             if (e.keyCode != 13) return;
             if (!this.input.val()) return;
             var path = "_posts/2000-01-" + (1+this.model.pages.length) + "-" + this.input.val().toLowerCase().replace(/ /g, "-") + ".md";
-            var content = "---\ntitle: \"" + this.input.val() + "\"\ncategories: [content]\n---\n";
+            var content = ['---',
+                'title: "' + this.input.val() + '"',
+                'layout: course_page',
+                'categories: [content]',
+                '---'
+                ].join('\n');
             this.model.pages.create({
                 path: path, 
                 content: content, 
@@ -133,6 +138,7 @@ $(function(){
             if (!this.repoNameInput.val()) return;
             this.model.set('github_repo', this.repoNameInput.val());
             this.model.save();
+            this.model.once('sync', function(){ this.model.fetch(); }, this);
         }
     });
 

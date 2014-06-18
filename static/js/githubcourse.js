@@ -47,6 +47,22 @@ function serialize( functions ){
     return deferred;
 }
 
+function copy_file(token, src_user, src_repo, src_path, dst_user, dst_repo){
+    var deferred = $.Deferred();
+    var github = new Github({
+        token: token,
+        auth: 'oauth'
+    });
+    var repo = github.getRepo(src_user, src_repo);
+    repo.contents('gh-pages', src_path, function(err, res){
+        var dstRepo = github.getRepo(dst_user, dst_repo);
+        dstRepo.postContents('gh-pages', src_path, res, 'Copying ' + src_path, function(err, res){
+            deferred.resolve();
+        });
+    });
+    return deferred;
+};
+
 
 // Copy a repository path ex> copy_path('s', 'p2pu', '_layout', 'dirkcuys', 'howtop2pu'
 function copy_path(token, src_user, src_repo, src_path, dst_user, dst_repo) {
@@ -58,25 +74,23 @@ function copy_path(token, src_user, src_repo, src_path, dst_user, dst_repo) {
     });
 
     var copyFile = function(path){
-        var cfdeferred = $.Deferred();
-        var repo = github.getRepo(src_user, src_repo);
-        repo.contents('gh-pages', path, function(err, res){
-            var dstRepo = github.getRepo(dst_user, dst_repo);
-            dstRepo.postContents('gh-pages', path, res, 'Copying ' + path, function(err, res){
-                cfdeferred.resolve();
-            });
-        });
-        return cfdeferred;
+        return copy_file(token, src_user, src_repo, path, dst_user, dst_repo);
+    };
+
+    var copyPath = function(path) {
+        return copy_path(token, src_user, src_repo, path, dst_user, dst_repo);
     };
 
     var copyPath = function(files){
         var dpipe = $.Deferred();
         var dnext = dpipe;
         for (var i = 0; i < files.length; ++i){
+            var path = files[i].path;
             if (files[i].type == "file"){
-                var path = files[i].path;
                 // bind path to stupid function
                 dnext = dnext.then(copyFile.bind(null, path));
+            } else if (files[i].type == "dir") {
+                dnext = dnext.then(copyPath.bind(null, path));
             }
         }
         dpipe.resolve();
@@ -97,18 +111,19 @@ function copy_path(token, src_user, src_repo, src_path, dst_user, dst_repo) {
 
 
 function create_course(token, user, repository, callback) {
-
     var course = {};
     var github = new Github({
         token: token,
         auth: 'oauth'
     });
+
     // Create repository
     var repo = github.getRepo();
     var repoOptions = {
         name: repository,
         homepage: user + '.github.io/' + repository
     }
+
     repo.createRepo(repoOptions, function(err, res){
         // Bootstrap course
         // files _config.yml README.markdown _posts/2000-01-01-start-here.markdown
@@ -124,14 +139,18 @@ function create_course(token, user, repository, callback) {
 
         var templateRepo = 'jekyll-course-template';
         var templateRepoUser = 'p2pu';
-
-        var configData = 'baseurl: /' + repository + '\nmarkdown: redcarpet\n';
+        var configData = [
+            'baseurl: /' + repository,
+            'markdown: redcarpet'
+        ].join('\n');
         var indexData = '---\nlayout: course_about\n---\n# Your first course';
         var courseData = '';
 
         $.when(
             postContent('_config.yml', configData, 'Add config file for jekyll course template')
         ).then(function(){
+            return copy_file(token, templateRepoUser, templateRepo, 'README.markdown', user, repository);
+        }).then(function(){
             return postContent('_data/course.yml', courseData, 'Add front page to course');
         }).then(function(){
             return copy_path(token, templateRepoUser, templateRepo, '_layouts', user, repository);
@@ -143,6 +162,8 @@ function create_course(token, user, repository, callback) {
             return copy_path(token, templateRepoUser, templateRepo, '_posts', user, repository);
         }).then(function(){
             return copy_path(token, templateRepoUser, templateRepo, 'css', user, repository);
+        }).then(function(){
+            return copy_path(token, templateRepoUser, templateRepo, 'js', user, repository);
         }).then(function(){
             callback(null, course);
         });
