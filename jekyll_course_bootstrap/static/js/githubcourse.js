@@ -7,7 +7,9 @@ function get_course_page(token, user, repository, path, callback) {
     var repo = github.getRepo(user, repository);
     repo.contents('gh-pages', path, function(err, res){
         // TODO handle errors
-        var result = {content: res};
+        var match = res.match(/---\n([^]*?)\n---([^]*)/);
+        var result = jsyaml.safeLoad(match[1]);
+        result.content = match[2];
         callback(err, result);
     });
 }

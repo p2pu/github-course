@@ -7,7 +7,7 @@ $(function(){
             var repo = model.get('github_repo');
             if (method == 'read') {
                 get_course_page(token, user, repo, model.get('path'), function(err, res){
-                    model.set({content: res});
+                    model.set(res);
                     options.success(model);
                 });
             }
@@ -42,9 +42,9 @@ $(function(){
                 repo.contents('gh-pages', '_posts', function(err, res){
                     var data = JSON.parse(res);
                     for (var i = 0; i < data.length; ++i){
-                        page = new Page({path: data[i].path, github_user: model.get('github_user'), github_repo: model.get('github_repo')});
-                        page.fetch();
-                        that.pages.add(page);
+                        page = new Page({title: 'loading...', path: data[i].path, github_user: model.get('github_user'), github_repo: model.get('github_repo')});
+                        page.fetch({success: function(pageModel){ that.pages.add(pageModel) }});
+                        //that.pages.add(page);
                     }
                 });
 
@@ -66,7 +66,6 @@ $(function(){
     });
 
     var PageView = Backbone.View.extend({
-        tagName: "li",
         template: _.template($('#id-page-template').html()),
         events: {
             "click a.delete": "clear"
@@ -76,7 +75,7 @@ $(function(){
             this.listenTo(this.model, 'destroy', this.remove);
         },
         render: function() {
-            this.$el.html(this.template(this.model.toJSON()));
+            this.el = this.template(this.model.toJSON());
             return this;
         },
         clear: function() {
@@ -88,7 +87,7 @@ $(function(){
         el: $("#id-course-view"),
         template: _.template($('#id-course-header-template').html()),
         events: {
-            "keypress #id-input-page": "createOnEnter",
+            "click #id-page-create-button": "createPage",
             "click a.load": "loadCourse",
             "click a.create": "createCourse"
         },
@@ -110,9 +109,9 @@ $(function(){
         addAll: function() {
             this.model.pages.each(this.addPage, this);
         },
-        createOnEnter: function(e) {
-            if (e.keyCode != 13) return;
+        createPage: function() {
             if (!this.input.val()) return;
+
             var path = "_posts/2000-01-" + (1+this.model.pages.length) + "-" + this.input.val().toLowerCase().replace(/ /g, "-") + ".md";
             var content = ['---',
                 'title: "' + this.input.val() + '"',
@@ -121,6 +120,7 @@ $(function(){
                 '---'
                 ].join('\n');
             this.model.pages.create({
+                title: this.input.val(),
                 path: path, 
                 content: content, 
                 github_user: this.model.get('github_user'), 
@@ -131,14 +131,22 @@ $(function(){
         },
         loadCourse: function() {
             if (!this.repoNameInput.val()) return;
+            this.$('#id-course-load-form').hide();
             this.model.set('github_repo', this.repoNameInput.val());
+            this.model.once('sync', function(){ 
+                this.$('#id-page-create-form').show();
+            }, this);
             this.model.fetch();
         },
         createCourse: function() {
             if (!this.repoNameInput.val()) return;
+            this.$('#id-course-load-form').hide();
             this.model.set('github_repo', this.repoNameInput.val());
+            this.model.once('sync', function(){ 
+                this.model.fetch();
+                this.$('#id-page-create-form').show();
+            }, this);
             this.model.save();
-            this.model.once('sync', function(){ this.model.fetch(); }, this);
         }
     });
 
