@@ -25,14 +25,6 @@ function create_course_page(token, user, repository, path, content, callback) {
     });
 }
 
-function get_user_courses(token, callback) {
-    // get all repositories for authenticated user
-    // try to get _p2pucourse.ini file for every repository
-}
-
-function read_course(token, user, repository, callback){
-}
-
 
 // take an array of deferred objects and run them synchronously
 function serialize( functions ){
