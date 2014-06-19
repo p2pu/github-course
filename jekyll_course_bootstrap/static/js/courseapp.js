@@ -67,9 +67,9 @@ $(function(){
 
     var PageView = Backbone.View.extend({
         template: _.template($('#id-page-template').html()),
-        events: {
+        /*events: {
             "click a.delete": "clear"
-        },
+        },*/
         initialize: function() {
             this.listenTo(this.model, 'change', this.render);
             this.listenTo(this.model, 'destroy', this.remove);
