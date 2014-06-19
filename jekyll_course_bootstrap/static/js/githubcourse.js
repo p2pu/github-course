@@ -1,5 +1,6 @@
 // Return course page at given path
 function get_course_page(token, user, repository, path, callback) {
+    var deferred = $.Deferred();
     var github = new Github({
         token: token,
         auth: 'oauth'
@@ -10,19 +11,22 @@ function get_course_page(token, user, repository, path, callback) {
         var match = res.match(/---\n([^]*?)\n---([^]*)/);
         var result = jsyaml.safeLoad(match[1]);
         result.content = match[2];
-        callback(err, result);
+        deferred.resolve(result);
     });
+    return deferred;
 }
 
-function create_course_page(token, user, repository, path, content, callback) {
+function create_course_page(token, user, repository, path, content) {
+    var deferred = $.Deferred();
     var github = new Github({
         token: token,
         auth: 'oauth'
     });
     var repo = github.getRepo(user, repository);
     repo.postContents('gh-pages', path, content, 'create new post ' + path, function(err, res){
-        callback(err, res);
+        deferred.resolve(res);
     });
+    return deferred;
 }
 
 

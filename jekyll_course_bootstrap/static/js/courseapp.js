@@ -6,7 +6,7 @@ $(function(){
             var user = model.get('github_user');
             var repo = model.get('github_repo');
             if (method == 'read') {
-                get_course_page(token, user, repo, model.get('path'), function(err, res){
+                get_course_page(token, user, repo, model.get('path')).then(function(res){
                     model.set(res);
                     options.success(model);
                 });
@@ -14,7 +14,7 @@ $(function(){
             else if (method == 'update') {
             }
             else if (method == 'create') {
-                create_course_page(token, user, repo, model.get('path'), model.get('content'), function(err, res){
+                create_course_page(token, user, repo, model.get('path'), model.get('content')).then(function(res){
                     options.success(model);
                 });
             }
@@ -140,9 +140,10 @@ $(function(){
         },
         createCourse: function() {
             if (!this.repoNameInput.val()) return;
+            var repoName = this.repoNameInput.val().toLowerCase().replace(/ /g, "-")
             this.$('#id-course-load-form').hide();
             this.$('#id-course-loading').show();
-            this.model.set('github_repo', this.repoNameInput.val());
+            this.model.set('github_repo', repoName);
             this.model.once('sync', function(){ 
                 this.$('#id-course-loading').hide();
                 this.model.fetch();
